@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>แจคพอตมหาปะลัย — ชุดที่ 2 (อาชีพ + สถานที่) v2</title>
+<style>
+  :root{
+    --bg1:#160a22;
+    --bg2:#241336;
+    --nebula1:rgba(255,160,210,.22);
+    --nebula2:rgba(170,120,255,.22);
+    --ink:#f8f0ff;
+    --gold:#ffd86b;
+    --gold-deep:#d3a311;
+    --ok:#2fe39f;
+    --no:#ff7f98;
+    --barbg: rgba(255,255,255,.25);
+    --barfg: linear-gradient(90deg,#ffd0e1,#caa8ff);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Prompt",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 700px at 10% -10%, var(--nebula1), transparent),
+      radial-gradient(1200px 700px at 110% 10%, var(--nebula2), transparent),
+      linear-gradient(180deg, var(--bg2), var(--bg1));
+    min-height:100vh; overflow:hidden;
+  }
+  .container{ width:min(1100px,95vw); margin:0 auto; padding:18px 0 40px }
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1.5px solid rgba(255,255,255,.14);
+    border-radius:24px;
+    box-shadow:0 18px 44px rgba(0,0,0,.55);
+    padding: clamp(16px,2.2vw,28px);
+  }
+  h1{
+    margin:0 0 6px 0; font-size: clamp(30px,4.8vw,52px); font-weight:900;
+    background:linear-gradient(90deg,#ffc4dd,#e3d0ff); -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 8px 30px rgba(255,144,188,.4);
+  }
+  .subtitle{ color:#f0e7ff; opacity:.9 }
+  .row{display:flex; flex-wrap:wrap; gap:14px}
+  .col{flex:1 1 320px}
+  label{ color:#f4eaff; font-weight:600 }
+  input, select{
+    width:100%; padding:16px 16px; border-radius:14px; border:2px solid rgba(255,255,255,.2);
+    background:#1a1030; color:#fff; outline:none; font-size:18px;
+  }
+  .btn{
+    display:inline-block; border:none; cursor:pointer; padding:16px 22px; border-radius:18px;
+    font-weight:900; font-size:20px;
+    background:linear-gradient(180deg,#ffc4dd,#e3d0ff); color:#2b0f22;
+    box-shadow:0 10px 0 #7a3a62, 0 20px 38px rgba(0,0,0,.45);
+    transition: transform .06s;
+  }
+  .btn.gold{ background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:#2b1d00; box-shadow:0 10px 0 #6e4f00, 0 20px 38px rgba(0,0,0,.45) }
+  .btn.ghost{ background:transparent; border:2px solid rgba(255,255,255,.4); color:#fff }
+  .btn:active{ transform: translateY(2px) }
+  .btn-group{ display:flex; gap:12px; flex-wrap:wrap }
+  .topgap{ margin-top:16px }
+  .center{ text-align:center }
+
+  /* CONTROL STRIP */
+  .controlStrip{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:10px 14px; border-radius:16px;
+    background: rgba(0,0,0,.35);
+    border:1.5px solid rgba(255,255,255,.2);
+    box-shadow:0 10px 26px rgba(0,0,0,.45);
+    margin-bottom:10px;
+  }
+  .orderText{
+    font-size: clamp(18px, 2.6vw, 26px); font-weight:900;
+    background:linear-gradient(180deg,#fff4b8,#ffd763);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+  .timerBox{ flex:1; height:10px; border-radius:999px; background:var(--barbg); overflow:hidden; border:1px solid rgba(255,255,255,.15) }
+  .timerFill{ height:100%; width:100%; background:var(--barfg); transform-origin:left center }
+  .timerLabel{ min-width:70px; text-align:right; font-weight:800 }
+
+  /* SPACE STAGE */
+  .stage{
+    position:relative; height:68vh; min-height:560px; border-radius:26px;
+    border:1.5px solid rgba(255,255,255,.12);
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(255,200,230,.16), transparent),
+      radial-gradient(1000px 800px at 50% 120%, rgba(180,130,255,.12), transparent),
+      radial-gradient(600px 300px at 10% 10%, rgba(255,255,255,.08), transparent),
+      #1b1130;
+    overflow:hidden;
+  }
+  .stars{ position:absolute; inset:0; pointer-events:none; }
+  .starPix{ position:absolute; width:2px; height:2px; background:rgba(255,255,255,.9); border-radius:50%; animation: twinkle 2.2s infinite ease-in-out }
+  @keyframes twinkle{ 0%,100%{opacity:.2} 50%{opacity:1} }
+
+  /* HUD */
+  .hud{
+    position:absolute; top:10px; left:10px; right:10px;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    pointer-events:none;
+  }
+  .pill{
+    pointer-events:auto;
+    background:rgba(0,0,0,.35); border:1.5px solid rgba(255,255,255,.2);
+    border-radius:999px; padding:10px 14px; box-shadow:0 8px 20px rgba(0,0,0,.5);
+    font-size:16px; font-weight:800;
+  }
+  .chest{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+  .slot{
+    min-width:70px; min-height:46px; display:inline-flex; align-items:center; justify-content:center;
+    padding:6px 12px; border-radius:14px; border:2px dashed rgba(255,255,255,.3);
+    color:#ffe9f1; background:rgba(255,255,255,.06); font-weight:800;
+  }
+
+  /* Adaptive oval token (pink–purple) */
+  .token{
+    position:absolute;
+    display:inline-flex; align-items:center; justify-content:center;
+    padding: 16px 24px;
+    min-width: 120px; min-height: 90px;
+    border-radius: 999px;
+    font-weight:900; font-size: clamp(20px, 2.6vw, 28px);
+    color:#fff; text-shadow: 0 2px 10px rgba(0,0,0,.55);
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.2) 25%, rgba(255,255,255,0) 30%),
+      radial-gradient(circle at 70% 70%, rgba(0,0,0,.4), transparent 45%),
+      linear-gradient(145deg, #ffb0d1, #b892ff);
+    border:3px solid rgba(255,255,255,.35);
+    box-shadow:
+      inset 0 12px 24px rgba(255,255,255,.15),
+      inset 0 -12px 24px rgba(0,0,0,.35),
+      0 18px 36px rgba(0,0,0,.55);
+    cursor:pointer; user-select:none;
+    transform: translate(-50%,-50%);
+    white-space: nowrap;
+  }
+  .token:hover{ outline:4px solid rgba(247,201,72,.5) }
+
+  .feedback{
+    position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+    font-weight:900; padding:10px 14px; border-radius:12px;
+    border:2px solid rgba(255,255,255,.18);
+    background:rgba(0,0,0,.35); display:none; font-size:18px;
+  }
+  .ok{ color:var(--ok) }
+  .no{ color:var(--no) }
+
+  /* Builder */
+  .builder{ display:flex; flex-direction:column; gap:10px }
+  .tiles{ display:flex; gap:12px; flex-wrap:wrap }
+  .tile{
+    padding:12px 16px; border-radius:14px; border:2px solid rgba(255,255,255,.25);
+    background:rgba(0,0,0,.35); font-weight:800; cursor:pointer; user-select:none; font-size:18px;
+  }
+  .slots{ display:flex; gap:12px; flex-wrap:wrap }
+  .drop{
+    min-width:86px; min-height:50px; display:inline-flex; align-items:center; justify-content:center;
+    border:2px dashed rgba(255,255,255,.35); border-radius:14px; padding:8px 12px; color:#fff; font-size:18px;
+  }
+  .drop.filled{ border-style:solid; background:rgba(255,255,255,.06) }
+
+  /* Particles */
+  .sparkle, .burst{
+    position:fixed; width:10px; height:10px; pointer-events:none; z-index:999;
+    background:radial-gradient(circle at 35% 35%, #fff9d5, #ffd84d 60%, #d2a000);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,.6));
+  }
+  @keyframes fly{ to{ transform: translateY(40px) scale(0.6); opacity:0 } }
+  .sparkle{ animation: fly .6s ease-out forwards }
+  @keyframes drop{ 0%{opacity:0; transform: translateY(-40px) scale(.6)} 15%{opacity:1} 100%{ transform: translateY(60vh) rotate(220deg) } }
+  .burst{ animation: drop 1.6s ease-in forwards }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HOME -->
+  <section id="home" class="card">
+    <h1>แจคพอตมหาปะลัย — ชุดที่ 2</h1>
+    <div class="subtitle">โหมด <b>อาชีพ + สถานที่</b> เติมด้วยคำกริยา/คำเชื่อมพอเหมาะ เล่น 4 ด่าน แล้วต่อคำที่เก็บเป็นประโยค 💖</div>
+    <div class="row topgap">
+      <div class="col">
+        <label>ชื่อเล่น</label>
+        <input id="playerName" placeholder="กรอกชื่อเล่น..." />
+      </div>
+      <div class="col">
+        <label>จำนวนรอบ</label>
+        <select id="roundCount">
+          <option value="4" selected>4 รอบ (แนะนำสำหรับชุดนี้)</option>
+          <option value="3">3 รอบ</option>
+        </select>
+      </div>
+    </div>
+    <div class="topgap btn-group">
+      <button class="btn gold" id="startBtn">เริ่มเกม</button>
+      <button class="btn ghost" id="howBtn">กติกา</button>
+    </div>
+  </section>
+
+  <!-- HOWTO -->
+  <section id="howto" class="card" style="display:none">
+    <h1>กติกา</h1>
+    <ol>
+      <li>ในอวกาศมีคำอังกฤษ <b>10 คำ</b> (อาชีพ/สถานที่/คำอื่น ๆ) ลอยอยู่</li>
+      <li>โจทย์ภาษาไทยสั้น ๆ: <b>“กำจัดคำว่า ‘____’”</b> — ให้คลิกคำอังกฤษที่แปลตรงกัน</li>
+      <li>นับถอยหลัง <b>7 วินาที/โจทย์</b></li>
+      <li>เหลือคำสุดท้าย → เก็บเข้าหีบ ทำครบ <b>4 รอบ</b> → นำคำมา <b>ต่อประโยค</b></li>
+      <li><b>ไม่มีเฉลยล่วงหน้า</b> ให้เด็กคิดเอง</li>
+    </ol>
+    <div class="topgap"><button class="btn" id="backHome1">ย้อนกลับ</button></div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="card" style="display:none">
+    <div class="controlStrip">
+      <div class="orderText" id="orderText">กำจัดคำว่า "<b>—</b>"</div>
+      <div class="timerBox"><div id="timerFill" class="timerFill"></div></div>
+      <div class="timerLabel">⏱️ <span id="timerNum">7</span> วิ</div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="hud">
+        <div class="pill">ผู้เล่น: <b id="hudName">-</b></div>
+        <div class="pill">รอบ: <b id="hudRound">1</b>/<span id="hudTotal">4</span></div>
+        <div class="pill">หีบ: <span class="chest" id="chest"></span></div>
+      </div>
+      <div class="stars" id="stars"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="topgap btn-group" style="justify-content:space-between">
+      <button class="btn ghost" id="quitBtn">ออก</button>
+      <button class="btn gold" id="skipBtn">ข้ามคำสั่ง</button>
+    </div>
+  </section>
+
+  <!-- BUILDER -->
+  <section id="builderSec" class="card" style="display:none">
+    <h1>ต่อประโยคให้ถูกต้อง</h1>
+    <div class="builder">
+      <div class="tiles" id="tiles"></div>
+      <div class="slots" id="slots"></div>
+      <div class="btn-group">
+        <button class="btn gold" id="checkBtn">ตรวจคำตอบ</button>
+        <button class="btn ghost" id="resetBtn">ล้างตำแหน่ง</button>
+        <button class="btn" id="playAgainBtn">เล่นใหม่</button>
+      </div>
+      <div class="topgap" id="resultMsg"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const THAI_MAP = {
+  /* Professions */
+  "TEACHER":"ครู","NURSE":"พยาบาล","DOCTOR":"หมอ","ENGINEER":"วิศวกร","POLICE":"ตำรวจ",
+  "FIREFIGHTER":"นักดับเพลิง","FARMER":"ชาวนา","CHEF":"พ่อครัว","DRIVER":"คนขับรถ",
+  "SINGER":"นักร้อง","DANCER":"นักเต้น","ARTIST":"ศิลปิน","WAITER":"พนักงานเสิร์ฟ","PILOT":"นักบิน",
+  /* Places */
+  "SCHOOL":"โรงเรียน","HOSPITAL":"โรงพยาบาล","MARKET":"ตลาด","PARK":"สวนสาธารณะ","BEACH":"ชายหาด",
+  "MOUNTAIN":"ภูเขา","RESTAURANT":"ร้านอาหาร","AIRPORT":"สนามบิน","STATION":"สถานี","BANK":"ธนาคาร",
+  "OFFICE":"ออฟฟิศ","LIBRARY":"ห้องสมุด","FACTORY":"โรงงาน","FARM":"ฟาร์ม",
+  /* Other helpful words */
+  "IS":"อยู่","ARE":"อยู่","AM":"อยู่","AT":"ที่","IN":"ใน","WITH":"กับ","AND":"และ",
+  "WORK":"ทำงาน","TEACH":"สอน","HELP":"ช่วย","DRIVE":"ขับ","COOK":"ทำอาหาร",
+  "TODAY":"วันนี้","NOW":"ตอนนี้","HERE":"ที่นี่","THERE":"ที่นั่น"
+};
+const WORD_POOL = Object.keys(THAI_MAP);
+
+// Hidden target sentences
+const SENTENCE_4 = ["NURSE","IS","AT","HOSPITAL"];
+const SENTENCE_3 = ["POLICE","AT","STATION"];
+
+const DISTRACTOR_COUNT = 9;
+const ORDER_LIMIT = 7000; // 7s per order
+
+/* ---------------- STATE ---------------- */
+let rounds = 4;
+let currentRound = 0;
+let targetSentence = SENTENCE_4.slice();
+let collected = [];
+
+let tokens = []; // {word, el, x, y, vx, vy}
+let orderQueue = []; // elimination order (exclude target)
+let currentOrder = ""; // english
+let orderTimer = null;
+let orderStart = 0;
+
+/* ---------------- ELEMENTS ---------------- */
+const secHome = document.getElementById("home");
+const secHow = document.getElementById("howto");
+const secGame = document.getElementById("game");
+const secBuilder = document.getElementById("builderSec");
+const startBtn = document.getElementById("startBtn");
+const howBtn = document.getElementById("howBtn");
+const backHome1 = document.getElementById("backHome1");
+const playerNameInput = document.getElementById("playerName");
+const roundCountSel = document.getElementById("roundCount");
+const hudName = document.getElementById("hudName");
+const hudRound = document.getElementById("hudRound");
+const hudTotal = document.getElementById("hudTotal");
+const chestEl = document.getElementById("chest");
+const stage = document.getElementById("stage");
+const stars = document.getElementById("stars");
+const orderText = document.getElementById("orderText");
+const timerFill = document.getElementById("timerFill");
+const timerNum = document.getElementById("timerNum");
+const feedback = document.getElementById("feedback");
+const quitBtn = document.getElementById("quitBtn");
+const skipBtn = document.getElementById("skipBtn");
+const tilesEl = document.getElementById("tiles");
+const slotsEl = document.getElementById("slots");
+const checkBtn = document.getElementById("checkBtn");
+const resetBtn = document.getElementById("resetBtn");
+const resultMsg = document.getElementById("resultMsg");
+const playAgainBtn = document.getElementById("playAgainBtn");
+
+/* ---------------- UTIL ---------------- */
+function show(el){ el.style.display=""; }
+function hide(el){ el.style.display="none"; }
+function rand(a,b){ return Math.random()*(b-a)+a; }
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function sample(arr, n){ const a=shuffle(arr); return a.slice(0, n); }
+function pickDistractors(excludeWords, n){
+  const pool = WORD_POOL.filter(w=>!excludeWords.includes(w));
+  if(n>pool.length) n=pool.length;
+  return sample(pool, n);
+}
+
+/* AUDIO */
+let audioCtx=null;
+function ensureAudio(){ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } }
+function beep(freq=880, dur=.1, type="triangle", vol=.22){
+  try{ ensureAudio(); const osc=audioCtx.createOscillator(), g=audioCtx.createGain();
+    osc.type=type; osc.frequency.value=freq; g.gain.value=vol; osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); setTimeout(()=>osc.stop(), dur*1000);
+  }catch(e){}
+}
+function okSFX(){ beep(880,.08,"triangle",.25); setTimeout(()=>beep(1320,.08,"triangle",.22),100); }
+function noSFX(){ beep(220,.12,"sawtooth",.22); }
+
+/* PARTICLES */
+function sparkleAt(x,y,count=12){
+  for(let i=0;i<count;i++){
+    const s=document.createElement("div"); s.className="sparkle";
+    s.style.left=(x + (Math.random()*80-40))+"px";
+    s.style.top=(y + (Math.random()*40-20))+"px";
+    s.style.transform=`translateY(${randInt(-10,10)}px)`;
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 650);
+  }
+}
+function jackpotBurst(){
+  const w=window.innerWidth;
+  for(let i=0;i<180;i++){
+    const b=document.createElement("div"); b.className="burst";
+    b.style.left=(Math.random()*w)+"px"; b.style.top=(-20 - Math.random()*80)+"px";
+    b.style.animationDelay=(Math.random()*700|0)+"ms";
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(), 1800);
+  }
+}
+
+/* STARFIELD */
+function buildStars(){
+  stars.innerHTML="";
+  const count = 200;
+  for(let i=0;i<count;i++){
+    const s=document.createElement("div"); s.className="starPix";
+    s.style.left = Math.random()*100+"%";
+    s.style.top = Math.random()*100+"%";
+    s.style.opacity = Math.random()*0.8+0.2;
+    s.style.animationDelay = (Math.random()*2)+"s";
+    stars.appendChild(s);
+  }
+}
+
+/* ---------------- MOTION ---------------- */
+let rafId = null;
+function startMotion(){
+  cancelMotion();
+  function tick(){
+    const w = stage.clientWidth, h = stage.clientHeight;
+    tokens.forEach(t=>{
+      const rect = t.el.getBoundingClientRect();
+      const rW = rect.width/2, rH = rect.height/2;
+      t.x += t.vx; t.y += t.vy;
+      if(t.x < rW){ t.x = rW; t.vx *= -1; }
+      if(t.x > w - rW){ t.x = w - rW; t.vx *= -1; }
+      if(t.y < rH){ t.y = rH; t.vy *= -1; }
+      if(t.y > h - rH){ t.y = h - rH; t.vy *= -1; }
+      t.el.style.left = t.x + "px";
+      t.el.style.top = t.y + "px";
+    });
+    rafId = requestAnimationFrame(tick);
+  }
+  rafId = requestAnimationFrame(tick);
+}
+function cancelMotion(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; }}
+
+/* ---------------- ORDER TIMER ---------------- */
+function startOrderTimer(){
+  stopOrderTimer();
+  orderStart = Date.now();
+  timerFill.style.transform = "scaleX(1)";
+  timerNum.textContent = "7";
+  orderTimer = setInterval(()=>{
+    const elapsed = Date.now() - orderStart;
+    const left = Math.max(0, 1 - elapsed/ORDER_LIMIT);
+    timerFill.style.transform = `scaleX(${left})`;
+    const secLeft = Math.ceil((ORDER_LIMIT - elapsed)/1000);
+    timerNum.textContent = Math.max(0, secLeft);
+    if(elapsed >= ORDER_LIMIT){
+      noSFX();
+      const remaining = tokens.map(t=>t.word).filter(w=>w!==targetSentence[currentRound-1]);
+      if(remaining.length){
+        setOrder( remaining[Math.floor(Math.random()*remaining.length)] );
+      }else{
+        stopOrderTimer();
+      }
+    }
+  }, 50);
+}
+function stopOrderTimer(){ if(orderTimer){ clearInterval(orderTimer); orderTimer=null; }}
+
+/* ---------------- GAME FLOW ---------------- */
+startBtn.addEventListener("click", ()=>{
+  const name = playerNameInput.value.trim() || "-";
+  const r = parseInt(roundCountSel.value,10);
+  rounds = r;
+  targetSentence = (r===4? SENTENCE_4 : SENTENCE_3).slice();
+  collected = [];
+  currentRound = 0;
+  hudName.textContent = name;
+  hudTotal.textContent = rounds;
+  chestEl.innerHTML="";
+  buildStars();
+  hide(secHome); hide(secHow); hide(secBuilder); show(secGame);
+  nextRound();
+});
+
+howBtn.addEventListener("click", ()=>{ hide(secHome); show(secHow); });
+backHome1.addEventListener("click", ()=>{ hide(secHow); show(secHome); });
+quitBtn.addEventListener("click", ()=>{ hide(secGame); show(secHome); cancelMotion(); stopOrderTimer(); });
+
+skipBtn.addEventListener("click", ()=>{
+  const remaining = tokens.map(t=>t.word).filter(w=>w!==targetSentence[currentRound-1]);
+  if(remaining.length){
+    setOrder( remaining[Math.floor(Math.random()*remaining.length)] );
+  }
+});
+
+function nextRound(){
+  tokens.forEach(t=>t.el.remove()); tokens=[];
+  feedback.style.display="none";
+  stopOrderTimer();
+
+  const targetWord = targetSentence[currentRound];
+  const words = [targetWord, ...pickDistractors([targetWord], DISTRACTOR_COUNT)];
+  orderQueue = shuffle(words.filter(w=>w!==targetWord));
+
+  const w = stage.clientWidth, h = stage.clientHeight;
+  words.forEach((wrd)=>{
+    const el = document.createElement("div");
+    el.className = "token";
+    el.textContent = wrd;
+    const x = rand(140, w-140);
+    const y = rand(140, h-140);
+    const vx = rand(-0.8, 0.8) || 0.45;
+    const vy = rand(-0.8, 0.8) || -0.45;
+    el.style.left = x + "px"; el.style.top = y + "px";
+    el.addEventListener("click", ()=> onTokenClick(wrd, el));
+    stage.appendChild(el);
+    tokens.push({word:wrd, el, x, y, vx, vy});
+  });
+
+  currentRound++;
+  hudRound.textContent = currentRound;
+  startMotion();
+
+  if(orderQueue.length){ setOrder(orderQueue[0]); }
+}
+
+function setOrder(englishWord){
+  currentOrder = englishWord;
+  const thai = THAI_MAP[englishWord] || englishWord;
+  orderText.innerHTML = `กำจัดคำว่า "<b>${thai}</b>"`;
+  startOrderTimer();
+}
+
+function onTokenClick(word, el){
+  const targetWord = targetSentence[currentRound-1];
+  if(word === targetWord){
+    showFeedback("อย่าเพิ่งกำจัดคำนี้! รักษาไว้ ⭐", false);
+    noSFX();
+    return;
+  }
+  if(word !== currentOrder){
+    showFeedback("ยังไม่ใช่คำนั้น ลองกำจัดตามคำสั่ง", false);
+    noSFX();
+    return;
+  }
+  const rect = el.getBoundingClientRect();
+  sparkleAt(rect.left+rect.width/2, rect.top+rect.height/2, 18);
+  el.remove();
+  okSFX();
+  tokens = tokens.filter(t=>t.word!==word);
+  orderQueue = orderQueue.filter(w=>w!==word);
+  if(orderQueue.length){
+    setOrder(orderQueue[0]);
+  }else{
+    captureTarget(targetWord);
+  }
+}
+
+function captureTarget(targetWord){
+  stopOrderTimer();
+  orderText.innerHTML = `เหลือคำสุดท้าย "<b>${THAI_MAP[targetWord] || targetWord}</b>"! เก็บเข้าหีบ ✨`;
+  showFeedback("ดีมาก! เก็บคำลับเข้าหีบแล้ว", true);
+  collected.push(targetWord);
+  const slot = document.createElement("div"); slot.className = "slot"; slot.textContent = targetWord; chestEl.appendChild(slot);
+  cancelMotion();
+  if(currentRound < rounds){
+    setTimeout(()=> nextRound(), 900);
+  }else{
+    setTimeout(()=> startBuilder(), 800);
+  }
+}
+
+function showFeedback(text, ok){
+  feedback.textContent = text;
+  feedback.className = "feedback " + (ok? "ok":"no");
+  feedback.style.display = "block";
+  setTimeout(()=> feedback.style.display = "none", 900);
+}
+
+/* --------------- BUILDER --------------- */
+function startBuilder(){
+  hide(secGame); show(secBuilder);
+  resultMsg.innerHTML = "";
+  tilesEl.innerHTML = ""; slotsEl.innerHTML = "";
+  const tiles = shuffle(collected);
+  tiles.forEach(w=>{
+    const t=document.createElement("div"); t.className="tile"; t.textContent=w;
+    t.addEventListener("click", ()=>{
+      const empty = [...slotsEl.children].find(s=>!s.dataset.word);
+      if(empty){
+        empty.textContent = w; empty.classList.add("filled"); empty.dataset.word = w;
+        t.remove();
+      }
+    });
+    tilesEl.appendChild(t);
+  });
+  for(let i=0;i<collected.length;i++){
+    const d=document.createElement("div"); d.className="drop"; d.textContent="—"; d.dataset.word="";
+    d.addEventListener("click", ()=>{
+      if(d.dataset.word){
+        const t=document.createElement("div"); t.className="tile"; t.textContent=d.dataset.word;
+        t.addEventListener("click", ()=>{
+          const empty2 = [...slotsEl.children].find(s=>!s.dataset.word);
+          if(empty2){
+            empty2.textContent = t.textContent; empty2.classList.add("filled"); empty2.dataset.word = t.textContent;
+            t.remove();
+          }
+        });
+        tilesEl.appendChild(t);
+        d.textContent="—"; d.classList.remove("filled"); d.dataset.word="";
+      }
+    });
+    slotsEl.appendChild(d);
+  }
+}
+
+checkBtn.addEventListener("click", ()=>{
+  const answer = [...slotsEl.children].map(s=>s.dataset.word).filter(Boolean);
+  if(answer.length !== collected.length){
+    resultMsg.innerHTML = "ยังวางไม่ครบทุกช่องนะจ๊ะ ✨";
+    return;
+  }
+  const target = (collected.length===4? SENTENCE_4 : SENTENCE_3);
+  const correct = target.every((w,i)=> w===answer[i]);
+  if(correct){
+    resultMsg.innerHTML = "<b style='color:#2fe39f'>แจคพอตแตก!!! ปัง ๆ ๆ ๆ 🎉</b>";
+    jackpotBurst(); okSFX(); setTimeout(()=>okSFX(),120);
+  }else{
+    resultMsg.innerHTML = "<span style='color:#ff7f98'>ยังไม่ถูก ลองสลับลำดับอีกนิด</span>";
+    noSFX();
+  }
+});
+
+resetBtn.addEventListener("click", startBuilder);
+playAgainBtn.addEventListener("click", ()=>{ hide(secBuilder); show(secHome); });
+</script>
+</body>
+</html>
